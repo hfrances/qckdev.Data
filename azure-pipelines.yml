@@ -146,6 +146,7 @@ jobs:
 
             write-output "Supported frameworks: $supportedFrameworks";
             write-output "Installed frameworks: $installedVersions";
+            write-output '';
             if ($files.Count -eq 0) {
               write-error 'No project files found in the specified directory';
             } else {
@@ -163,7 +164,7 @@ jobs:
                   $version = [regex]::match($_, '(\d+\.\d+)').Value;
                   if ($version) {
                     write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_$version]$_";
-                    if ("$installedSdks" --notmatch "$version") {
+                    if (!("$installedSdks" --match "$version")) {
                       write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_$version_Install]$_";
                     }
                   }
