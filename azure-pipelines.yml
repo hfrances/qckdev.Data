@@ -125,7 +125,7 @@ jobs:
               $version = "$($xml.Project.PropertyGroup.Version)"?.Trim();
               write-output "Version: $version";
               write-output "##vso[task.setvariable variable=MainProject.Version]$version";
-                
+
               # Set description
               $description = "$($xml.Project.PropertyGroup.Description)"?.Trim();
               write-output "Description: $description";
@@ -147,31 +147,57 @@ jobs:
         inputs:
           targetType: 'inline'
           script: |
-            if ($(MainProject.Version) -match '-(?<prerelease>\w*)(\.\d+)?$') {
-                # The project already has its own version.
-                $releaseVersion = "$(MainProject.Version)";
-                $releaseAlias = $matches['prerelease'];
-            } 
-            elseif ("$(Build.SourceBranch)" -in @('refs/heads/master', 'refs/heads/main')) {
-                # Master or main has tag "latest".
-                $releaseVersion = "$(MainProject.Version)";
-                $releaseAlias = "latest";
-            } 
-            elseif ("$(Build.SourceBranch)" -eq 'refs/heads/staging') {
-                # Staging has tag "alpha".
-                $releaseVersion = "$(MainProject.Version)-alpha.$(Build.BuildId)";
-                $releaseAlias = "alpha";
-            } 
-            else {
-                # Other branches have the branch name as tag.
-                $releaseVersion = "$(MainProject.Version)-$(Build.SourceBranchName).$(Build.BuildId)";
-                $releaseAlias = "$(Build.SourceBranchName)";
+            # https://regex101.com/r/XJjOGd/1
+            $regex = '(?<version>(?<major>\d+)(?:.(?<minor>\d+))(?:.(?<patch>\d+))?(?:.(?<build>\d+))?)(?:-(?<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$';
+
+            if ($(MainProject.Version) -match $regex) {
+                $version = $matches['version'];
+                $major = $matches['major'];
+                $minor = $matches['minor'];
+                $patch = if ($matches['patch']) { $matches['patch'] } else { 0 }
+                $build = $matches['build'];
+
+                if ($(MainProject.Version) -match '-(?<prerelease>\w*)(\.\d+)?$') {
+                  # The version already has its own sufix.
+                  $releaseVersion = "$(MainProject.Version)";
+                  $dockerVersion = $releaseVersion;
+                  $dockerAlias = $matches['prerelease'];
+                }
+                elseif ("$(Build.SourceBranch)" -in @('refs/heads/master', 'refs/heads/main')) {
+                  # Master or main has tag "latest".
+                  $releaseVersion = "$(MainProject.Version)";
+                  $dockerVersion = $releaseVersion;
+                  $dockerAlias = "latest";
+                }
+                elseif ("$(Build.SourceBranch)" -eq 'refs/heads/staging') {
+                  # Staging has tag "alpha".
+                  $releaseVersion = "$(MainProject.Version)-alpha+$(Build.BuildId)";
+                  $dockerVersion = $releaseVersion;
+                  $dockerAlias = "alpha";
+                }
+                else {
+                  # Other branches have the branch name as tag.
+                  $cleanBranchName = -join ($sourceBranchName -split '[^a-zA-Z0-9]');
+                  $releaseVersion = "$(MainProject.Version)+$cleanBranchName-$(Build.BuildId)";
+                  $dockerVersion = "$(MainProject.Version)-$cleanBranchName_$(Build.BuildId)";
+                  $dockerAlias = "$cleanBranchName";
+                }
+                # Calculate AssemblyVersion
+                $assemblyVersion = "$major.$minor.$patch.$(Build.BuildId)";
+                # Set variables
+                write-output "##vso[task.setvariable variable=BuildParameters.ReleaseVersion]$releaseVersion";
+                write-output "##vso[task.setvariable variable=BuildParameters.ReleaseAlphaVersion]$releaseAlphaVersion";
+                write-output "##vso[task.setvariable variable=BuildParameters.DockerVersion]$dockerVersion";
+                write-output "##vso[task.setvariable variable=BuildParameters.DockerAlias]$dockerAlias";
+                # Display variables
+                write-output "Release version: $releaseVersion"
+                write-output "Release assembly version: $releaseAssemblyVersion"
+                write-output "Docker version: $dockerVersion"
+                write-output "Docker alias: $dockerAlias"
             }
-            write-output "##vso[task.setvariable variable=BuildParameters.ReleaseVersion]$releaseVersion";
-            write-output "##vso[task.setvariable variable=BuildParameters.ReleaseAlias]$releaseAlias";
-            #
-            write-output "Release version: $releaseVersion"
-            write-output "Release alias: $releaseAlias"
+            else {
+              write-error "Invalid version format for: $(MainProject.Version)";
+            }
           workingDirectory: '$(Build.SourcesDirectory)'
         displayName: 'Set release version'
         condition: succeeded()
