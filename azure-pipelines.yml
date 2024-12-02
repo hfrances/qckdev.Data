@@ -141,8 +141,11 @@ jobs:
           targetType: 'inline'
           script: |
             $files = Get-ChildItem -Recurse -Filter *.??proj;
-      
-            write-output "Supported frameworks: $SupportedFrameworks"
+            $supportedFrameworks = "$(SupportedFrameworks)";
+            $installedVersions = &dotnet --list-sdks;
+
+            write-output "Supported frameworks: $supportedFrameworks";
+            write-output "Installed frameworks: $installedVersions";
             if ($files.Count -eq 0) {
               write-error 'No project files found in the specified directory';
             } else {
@@ -160,6 +163,9 @@ jobs:
                   $version = [regex]::match($_, '(\d+\.\d+)').Value;
                   if ($version) {
                     write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_$version]$_";
+                    if ("$installedSdks" --notmatch $version) {
+                      write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_$version_Install]$_";
+                    }
                   }
                 }
                 write-output '';
@@ -294,7 +300,7 @@ jobs:
             version: '${{ framework }}.x'
             includePreviewVersions: false
           displayName: 'UseDotNet ${{ framework }}'
-          condition: ne(variables['BuildParameters.TargetFramework_${{framework}}'], '')
+          condition: ne(variables['BuildParameters.TargetFramework_${{framework}}_Install'], '')
 
       - task: DotNetCoreCLI@2
         displayName: Restore
