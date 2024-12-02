@@ -132,19 +132,40 @@ jobs:
               $description = "$($xml.Project.PropertyGroup.Description)"?.Trim();
               write-output "Description: $description";
               write-output "##vso[task.setvariable variable=MainProject.Description]$description";
-              
-              # Calculate target frameworks
-              $frameworks = "$($xml.Project.PropertyGroup.TargetFrameworks)"?.Trim().Split(";");
-              write-output "Target frameworks: $frameworks";
-              $frameworks | ForEach-Object {
-                $version = [regex]::match($_, '(\d+\.\d+)').Value;
-                if ($version) {
-                  write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_$version]$_";
-                }
-              }
-              
             }
         displayName: Get main project properties
+
+      - task: PowerShell@2
+        inputs:
+          pwsh: true
+          targetType: 'inline'
+          script: |
+            $files = Get-ChildItem -Recurse -Filter *.??proj
+      
+            write-output "Processing file: $SupportedFrameworks";
+            if ($files.Count -eq 0) {
+              write-error 'No project files found in the specified directory'
+            } else {
+              $files | ForEach-Object {
+                $file = $_
+                write-output "Processing file: $file"
+      
+                # Load the XML content of the project file
+                $xml = [xml](Get-Content -Path $file.FullName)
+      
+                # Calculate target frameworks
+                $frameworks = "$($xml.Project.PropertyGroup.TargetFrameworks)"?.Trim().Split(";")
+                write-output "Target frameworks: $frameworks";
+                $frameworks | ForEach-Object {
+                  $version = [regex]::match($_, '(\d+\.\d+)').Value
+                  if ($version) {
+                    write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_$version]$_"
+                  }
+                }
+                write-output ";
+              }
+            }
+        displayName: Calculate target frameworks
 
       - task: PowerShell@2
         inputs:
@@ -160,9 +181,8 @@ jobs:
                 $minor = $matches['minor'];
                 $patch = if ($matches['patch']) { $matches['patch'] } else { 0 }
                 $build = $matches['build'];
-                $prerelease = $matches['prerelease']?.Value;
 
-                if ($prerelease) {
+                if ($matches['prerelease']) {
                   # The version already has its own sufix.
                   $releaseVersion = "$(MainProject.Version)";
                   $dockerVersion = -join ($releaseVersion -split '[^a-zA-Z0-9-]');
