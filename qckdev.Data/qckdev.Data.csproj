@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net461;$(net40);$(net35)</TargetFrameworks>
-    <Version>0.1.0-alpha</Version>
+    <Version>1.0.0-alpha</Version>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Company>TrCode</Company>
     <Authors>hfrances</Authors>
     <PackageReleaseNotes></PackageReleaseNotes>
     <Product>qckdev.Data (Preview)</Product>
-    <Description>Extensions for System.Data</Description>
+    <Description>Extensions for System.Data namespace.</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/hfrances/qckdev.Data</PackageProjectUrl>
