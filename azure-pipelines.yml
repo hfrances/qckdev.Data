@@ -164,7 +164,7 @@ jobs:
                   $version = [regex]::match($_, '(\d+\.\d+)').Value;
                   if ($version) {
                     write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_$version]$_";
-                    if (!("$installedSdks" --match "$version")) {
+                    if (!("$installedSdks" -match "$version")) {
                       write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_$version_Install]$_";
                     }
                   }
