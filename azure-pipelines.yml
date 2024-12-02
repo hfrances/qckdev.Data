@@ -140,32 +140,32 @@ jobs:
           pwsh: true
           targetType: 'inline'
           script: |
-            $files = Get-ChildItem -Recurse -Filter *.??proj
+            $files = Get-ChildItem -Recurse -Filter *.??proj;
       
-            write-output "Processing file: $SupportedFrameworks";
+            write-output "Supported frameworks: $SupportedFrameworks"
             if ($files.Count -eq 0) {
-              write-error 'No project files found in the specified directory'
+              write-error 'No project files found in the specified directory';
             } else {
               $files | ForEach-Object {
-                $file = $_
-                write-output "Processing file: $file"
+                $file = $_;
+                write-output "Processing file: $file";
       
                 # Load the XML content of the project file
-                $xml = [xml](Get-Content -Path $file.FullName)
+                $xml = [xml](Get-Content -Path $file.FullName);
       
                 # Calculate target frameworks
-                $frameworks = "$($xml.Project.PropertyGroup.TargetFrameworks)"?.Trim().Split(";")
+                $frameworks = "$($xml.Project.PropertyGroup.TargetFrameworks)"?.Trim().Split(";");
                 write-output "Target frameworks: $frameworks";
                 $frameworks | ForEach-Object {
-                  $version = [regex]::match($_, '(\d+\.\d+)').Value
+                  $version = [regex]::match($_, '(\d+\.\d+)').Value;
                   if ($version) {
-                    write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_$version]$_"
+                    write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_$version]$_";
                   }
                 }
-                write-output ";
               }
             }
         displayName: Calculate target frameworks
+
 
       - task: PowerShell@2
         inputs:
