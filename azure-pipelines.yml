@@ -141,12 +141,23 @@ jobs:
           targetType: 'inline'
           script: |
             $files = Get-ChildItem -Recurse -Filter *.??proj;
+            
+            # Get supported frameworks.
             $supportedFrameworks = "$(SupportedFrameworks)";
-            $installedVersions = &dotnet --list-sdks;
-
             write-output "Supported frameworks: $supportedFrameworks";
-            write-output "Installed frameworks: $installedVersions";
+            # Get installed frameworks.            
+            $installedSdks = &dotnet --list-sdks
+            $installedVersions = @()
+            foreach ($sdk in $installedSdks) {
+              write-output $sdk;
+              if ($sdk -match '^(?<version>\d+\.\d+)') {
+                $installedVersions += $matches['version'];
+              }
+            }
+            write-output "Installed versions: $installedVersions";
+            #
             write-output '';
+            #
             if ($files.Count -eq 0) {
               write-error 'No project files found in the specified directory';
             } else {
@@ -164,7 +175,7 @@ jobs:
                   $version = [regex]::match($_, '(\d+\.\d+)').Value;
                   if ($version) {
                     write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_$version]$_";
-                    if (!("$installedSdks" -match "$version")) {
+                    if ($installedVersions -notcontains $version) {
                       write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_$version_Install]$_";
                     }
                   }
