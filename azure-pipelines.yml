@@ -181,10 +181,10 @@ jobs:
                 }
                 else {
                   # Other branches have the branch name as tag.
-                  $cleanBranchName = -join ($sourceBranchName -split '[^a-zA-Z0-9]');
-                  $releaseVersion = "$(MainProject.Version)+$cleanBranchName-$(Build.BuildId)";
-                  $dockerVersion = "$(MainProject.Version)-$cleanBranchName_$(Build.BuildId)";
-                  $dockerAlias = "$cleanBranchName";
+                  $branchNameClean = -join ($sourceBranchName -split '[^a-zA-Z0-9]');
+                  $releaseVersion = "$(MainProject.Version)+$branchNameClean-$(Build.BuildId)";
+                  $dockerVersion = "$(MainProject.Version)-$branchNameClean_$(Build.BuildId)";
+                  $dockerAlias = "$branchNameClean";
                 }
                 # Calculate AssemblyVersion
                 $assemblyVersion = "$major.$minor.$patch.$(Build.BuildId)";
