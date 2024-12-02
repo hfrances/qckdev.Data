@@ -197,15 +197,15 @@ jobs:
                 $minor = $matches['minor'];
                 $patch = if ($matches['patch']) { $matches['patch'] } else { 0 }
                 $build = $matches['build'];
+                $prerelease = $matches['prerelease'];
 
-                if ($matches['prerelease']) {
+                if ($prerelease) {
                   # The version already has its own sufix.
-                  $prerelease = $matches['prerelease'].Value;
                   $prereleaseClean = -join ("$prerelease" -split '[^a-zA-Z0-9-]');
                   $releaseVersion = "$(MainProject.Version)";
                   $dockerVersion = "$version-$prereleaseClean";
                   write-output "$prerelease";
-                  if ("$prerelease" -match '^(?<alias>\D+)') {
+                  if ("$prerelease" -match '^(?<alias>\w+)') {
                     $dockerAlias = $matches['alias'];
                   }
                   else {
