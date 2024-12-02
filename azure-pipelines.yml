@@ -143,7 +143,7 @@ jobs:
             $files = Get-ChildItem -Recurse -Filter *.??proj;
             
             # Get supported frameworks.
-            $supportedFrameworks = $supportedFrameworks.Split(';') | ForEach-Object { $_.Trim() };
+            $supportedFrameworks = $(SupportedFrameworks)?.Split(';') | ForEach-Object { $_.Trim() };
             write-output "Supported frameworks: $supportedFrameworks";
             # Get installed frameworks.            
             $installedSdks = &dotnet --list-sdks;
