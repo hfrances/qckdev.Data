@@ -147,16 +147,15 @@ jobs:
             write-output "Supported frameworks: $supportedFrameworks";
             # Get installed frameworks.            
             $installedSdks = &dotnet --list-sdks;
-            $installedVersions = New-Object System.Collections.Generic.HashSet[string];
+            $installedFrameworks = New-Object System.Collections.Generic.HashSet[string];
             foreach ($sdk in $installedSdks) {
               if ($sdk -match '^(?<version>\d+\.\d+)') {
-                $installedVersions.Add($matches['version']) | Out-Null;
+                $installedFrameworks.Add($matches['version']) | Out-Null;
               }
             }
-            write-output "Installed versions: $installedVersions";
-            #
+            write-output "Installed frameworks: $installedFrameworks";
             write-output '';
-            #
+            # Calculate necessary frameworks.
             if ($files.Count -eq 0) {
               write-error 'No project files found in the specified directory';
             } else {
@@ -174,13 +173,8 @@ jobs:
                   $version = [regex]::match($_, '(\d+\.\d+)').Value;
                   if ($version) {
                     write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_$version]$_";
-                    write-output "$installedVersions vs $version";
                     if ($installedVersions -notcontains $version) {
-                      write-output "ok";
                       write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_Install_$version]$_";
-                    }
-                    else {
-                      write-warning "nok";
                     }
                   }
                 }
@@ -315,7 +309,7 @@ jobs:
             version: '${{ framework }}.x'
             includePreviewVersions: false
           displayName: 'UseDotNet ${{ framework }}'
-          condition: ne(variables['BuildParameters.TargetFramework_Install_${{framework}}'], '')
+          condition: ne(variables['BuildParameters.TargetFramework_${{framework}}'], '')
 
       - task: DotNetCoreCLI@2
         displayName: Restore
