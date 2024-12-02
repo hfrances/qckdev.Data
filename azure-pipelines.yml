@@ -143,7 +143,7 @@ jobs:
             $files = Get-ChildItem -Recurse -Filter *.??proj;
             
             # Get supported frameworks.
-            $supportedFrameworks = "$(SupportedFrameworks)";
+            $supportedFrameworks = $supportedFrameworks.Split(';') | ForEach-Object { $_.Trim() };
             write-output "Supported frameworks: $supportedFrameworks";
             # Get installed frameworks.            
             $installedSdks = &dotnet --list-sdks;
@@ -200,9 +200,17 @@ jobs:
 
                 if ($matches['prerelease']) {
                   # The version already has its own sufix.
+                  $prerelease = $matches['prerelease'].Value;
+                  $prereleaseClean = -join ("$prerelease" -split '[^a-zA-Z0-9-]');
                   $releaseVersion = "$(MainProject.Version)";
-                  $dockerVersion = -join ($releaseVersion -split '[^a-zA-Z0-9-]');
-                  $dockerAlias = $prerelease;
+                  $dockerVersion = "$version-$prereleaseClean";
+                  if ($prerelease -match '^(?<alias>\D+)') {
+                    $dockerAlias = $matches['alias'];
+                  }
+                  else {
+                    $dockerAlias = $prereleaseClean;
+                    write-warning "Invalid alias '$prerelease'.";
+                  }
                 }
                 elseif ("$(Build.SourceBranch)" -in @('refs/heads/master', 'refs/heads/main')) {
                   # Master or main has tag "latest".
