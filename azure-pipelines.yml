@@ -161,7 +161,7 @@ jobs:
                 $patch = if ($matches['patch']) { $matches['patch'] } else { 0 }
                 $build = $matches['build'];
 
-                if ($(MainProject.Version) -match '-(?<prerelease>\w*)(\.\d+)?$') {
+                if ("$(MainProject.Version)" -match '-(?<prerelease>\w*)(\.\d+)?$') {
                   # The version already has its own sufix.
                   $releaseVersion = "$(MainProject.Version)";
                   $dockerVersion = $releaseVersion;
