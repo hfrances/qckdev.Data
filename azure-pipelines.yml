@@ -315,7 +315,7 @@ jobs:
             version: '${{ framework }}.x'
             includePreviewVersions: false
           displayName: 'UseDotNet ${{ framework }}'
-          condition: ne(variables['BuildParameters.TargetFramework_${{framework}}_Install'], '')
+          condition: ne(variables['BuildParameters.TargetFramework_Install_${{framework}}'], '')
 
       - task: DotNetCoreCLI@2
         displayName: Restore
