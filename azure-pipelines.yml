@@ -147,7 +147,7 @@ jobs:
             write-output "Supported frameworks: $supportedFrameworks";
             # Get installed frameworks.            
             $installedSdks = &dotnet --list-sdks;
-            $installedVersions = @();
+            $installedVersions = New-Object System.Collections.Generic.HashSet[string];
             foreach ($sdk in $installedSdks) {
               if ($sdk -match '^(?<version>\d+\.\d+)') {
                 $installedVersions.Add($matches['version']) | Out-Null;
