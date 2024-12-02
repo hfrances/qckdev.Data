@@ -204,7 +204,6 @@ jobs:
                   $prereleaseClean = -join ("$prerelease" -split '[^a-zA-Z0-9-]');
                   $releaseVersion = "$(MainProject.Version)";
                   $dockerVersion = "$version-$prereleaseClean";
-                  write-output "$prerelease";
                   if ("$prerelease" -match '^(?<alias>\w+)') {
                     $dockerAlias = $matches['alias'];
                   }
