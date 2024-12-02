@@ -61,7 +61,7 @@ jobs:
   - job: Build
     steps:
       - task: PowerShell@2
-        displayName: Create 'drop' folder
+        pwsh: true
         inputs:
           targetType: 'inline'
           script: |
@@ -69,9 +69,10 @@ jobs:
             if (!(Test-Path $path)) {
               New-Item -itemType Directory -Path '$(Build.ArtifactStagingDirectory)' -Name 'drop';
             }
+        displayName: Create 'drop' folder
 
       - task: PowerShell@2
-        displayName: Get main project from Solution
+        pwsh: true
         inputs:
           targetType: 'inline'
           script: |
@@ -102,9 +103,10 @@ jobs:
                   }
                 }
               }
+        displayName: Get main project from Solution
 
       - task: PowerShell@2
-        displayName: Get main project properties
+        pwsh: true
         inputs:
           targetType: 'inline'
           script: |
@@ -142,8 +144,10 @@ jobs:
               }
               
             }
+        displayName: Get main project properties
 
       - task: PowerShell@2
+        pwsh: true
         inputs:
           targetType: 'inline'
           script: |
@@ -203,6 +207,7 @@ jobs:
         condition: succeeded()
 
       - task: PowerShell@2
+        pwsh: true
         inputs:
           targetType: 'inline'
           script: |
@@ -225,6 +230,7 @@ jobs:
         condition: succeeded()
 
       - task: PowerShell@2
+        pwsh: true
         inputs:
           targetType: 'inline'
           script: |
@@ -243,7 +249,7 @@ jobs:
         displayName: 'Set output filename'
 
       - task: PowerShell@2
-        displayName: 'Export variable list'
+        pwsh: true
         inputs:
           targetType: 'inline'
           script: |
@@ -256,6 +262,8 @@ jobs:
             set-content $fileName $out
       
             write-output "##vso[task.addattachment type=Distributedtask.Core.Summary;name=Environment Variables;]$fileName" 
+        displayName: 'Export variable list'
+        condition: succeededOrFailed()
 
       - ${{ each framework in split(variables.SupportedFrameworks, ';') }}:
         - task: UseDotNet@2
@@ -306,6 +314,7 @@ jobs:
           arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[*Tests]*" /p:CoverletOutput="$(Build.SourcesDirectory)/TestResults/"'
 
       - task: PowerShell@2
+        pwsh: true
         inputs:
           targetType: 'inline'
           script: |
@@ -324,6 +333,7 @@ jobs:
         displayName: 'Coverage: Parse format'
 
       - task: PowerShell@2
+        pwsh: true
         inputs:
           targetType: 'inline'
           script: |
