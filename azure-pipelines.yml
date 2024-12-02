@@ -162,6 +162,7 @@ jobs:
                     write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_$version]$_";
                   }
                 }
+                write-output '';
               }
             }
         displayName: Calculate target frameworks
