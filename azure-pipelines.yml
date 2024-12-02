@@ -163,7 +163,7 @@ jobs:
                   $version = [regex]::match($_, '(\d+\.\d+)').Value;
                   if ($version) {
                     write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_$version]$_";
-                    if ("$installedSdks" --notmatch $version) {
+                    if ("$installedSdks" --notmatch "$version") {
                       write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_$version_Install]$_";
                     }
                   }
@@ -215,7 +215,7 @@ jobs:
                   $dockerAlias = "$branchNameClean";
                 }
                 # Calculate AssemblyVersion
-                $assemblyVersion = "$major.$minor.$patch.$(Build.BuildId)";
+                $releaseAssemblyVersion = "$major.$minor.$patch.$(Build.BuildId)";
                 # Set variables
                 write-output "##vso[task.setvariable variable=BuildParameters.ReleaseVersion]$releaseVersion";
                 write-output "##vso[task.setvariable variable=BuildParameters.ReleaseAlphaVersion]$releaseAlphaVersion";
