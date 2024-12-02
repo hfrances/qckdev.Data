@@ -174,8 +174,13 @@ jobs:
                   $version = [regex]::match($_, '(\d+\.\d+)').Value;
                   if ($version) {
                     write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_$version]$_";
+                    write-output "$installedVersions vs $version";
                     if ($installedVersions -notcontains $version) {
-                      write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_$version_Install]$_";
+                      write-output "ok";
+                      write-output "##vso[task.setvariable variable=BuildParameters.TargetFramework_Install_$version]$_";
+                    }
+                    else {
+                      write-warning "nok";
                     }
                   }
                 }
