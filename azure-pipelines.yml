@@ -146,12 +146,11 @@ jobs:
             $supportedFrameworks = "$(SupportedFrameworks)";
             write-output "Supported frameworks: $supportedFrameworks";
             # Get installed frameworks.            
-            $installedSdks = &dotnet --list-sdks
-            $installedVersions = @()
+            $installedSdks = &dotnet --list-sdks;
+            $installedVersions = @();
             foreach ($sdk in $installedSdks) {
-              write-output $sdk;
               if ($sdk -match '^(?<version>\d+\.\d+)') {
-                $installedVersions += $matches['version'];
+                $installedVersions.Add($matches['version']) | Out-Null;
               }
             }
             write-output "Installed versions: $installedVersions";
@@ -184,7 +183,6 @@ jobs:
               }
             }
         displayName: Calculate target frameworks
-
 
       - task: PowerShell@2
         inputs:
@@ -266,7 +264,7 @@ jobs:
             }
             write-warning "patata";
           workingDirectory: '$(Build.SourcesDirectory)'
-        displayName: 'Set release version to project'
+        displayName: 'Apply release version to project'
         condition: succeeded()
 
       - task: PowerShell@2
