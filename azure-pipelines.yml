@@ -379,12 +379,12 @@ jobs:
           dotnet test --configuration $(buildConfiguration) --collect:"XPlat Code Coverage" 
         displayName: 'Test + Coverage (3)'
       
-     - task: PublishTestResults@2
-       inputs:
-         testResultsFormat: 'VSTest'
-         testResultsFiles: '**/TestResults/*.trx'
-         searchFolder: '$(System.DefaultWorkingDirectory)'
-         mergeTestResults: true
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFormat: 'VSTest'
+          testResultsFiles: '**/TestResults/*.trx'
+          searchFolder: '$(System.DefaultWorkingDirectory)'
+          mergeTestResults: true
       
       - task: PowerShell@2
         inputs:
