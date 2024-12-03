@@ -1,24 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net9.0;net7.0;net8.0;net6.0;net5.0;netcoreapp3.1;</TargetFrameworks> <!--net461-->
+    <TargetFrameworks>net9.0;net7.0;net8.0;net6.0;net5.0;netcoreapp3.1</TargetFrameworks> <!--net461-->
     <ImplicitUsings>disable</ImplicitUsings>
     <IsPackable>false</IsPackable>
-    <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
-  <!-- MSTest dependences -->
   <ItemGroup Condition="'$(TargetFramework)'!='net461'">
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="coverlet.collector" Version="3.1.0">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
-    <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
   </ItemGroup>
 
   <!-- Configuration dependences -->
@@ -72,13 +61,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!--<PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />-->
-  </ItemGroup>
-  
-  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="3.0.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
     <ProjectReference Include="..\qckdev.Data\qckdev.Data.csproj" />
   </ItemGroup>
-
   
   <ItemGroup>
     <None Update="appsettings.Development.json">
