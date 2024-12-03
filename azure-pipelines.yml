@@ -55,7 +55,7 @@ variables:
     - name: SonarQubeEnabled
       value: $[or(eq(variables.Analyze, 'true'), and(eq(variables.Analyze, 'auto'), or(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(variables['Build.SourceBranch'], 'refs/heads/main'), eq(variables['Build.SourceBranch'], 'refs/heads/staging'))))]
   - name: SupportedFrameworks
-    value: "9.0;8.0;7.0;6.0;5.0;3.1"
+    value: "9.0;3.1" # ;8.0;7.0;6.0;5.0
 
 jobs:
   - job: Build
@@ -368,6 +368,24 @@ jobs:
           projects: '$(BuildParameters.TestProjects)'
           arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[*Tests]*" /p:CoverletOutput="$(Build.SourcesDirectory)/TestResults/"'
 
+      - task: DotNetCoreCLI@2
+        inputs:
+          command: 'test'
+          projects: '**/*.Tests/*.csproj'
+          arguments: '--configuration $(buildConfiguration) --collect:"XPlat Code Coverage"'
+        displayName: 'Test + Coverage (2)'
+
+      - script: | 
+          dotnet test --configuration $(buildConfiguration) --collect:"XPlat Code Coverage" 
+        displayName: 'Test + Coverage (3)'
+      
+     - task: PublishTestResults@2
+       inputs:
+         testResultsFormat: 'VSTest'
+         testResultsFiles: '**/TestResults/*.trx'
+         searchFolder: '$(System.DefaultWorkingDirectory)'
+         mergeTestResults: true
+      
       - task: PowerShell@2
         inputs:
           pwsh: true
@@ -414,7 +432,7 @@ jobs:
             write-output "##vso[task.setvariable variable=CoverageResults]$coverageResults"
         condition: eq(variables.HasTests, 'true')
         displayName: 'Coverage: Collect files'
-     
+
       - task: PublishCodeCoverageResults@1
         inputs:
           codeCoverageTool: 'Cobertura'
