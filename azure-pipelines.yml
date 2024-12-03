@@ -59,14 +59,15 @@ variables:
 
 jobs:
   - job: Build
-    services: 
-      sqlserver: 
-        image: mcr.microsoft.com/mssql/server:2019-latest 
-        env: 
-          SA_PASSWORD: "your_password" 
-          ACCEPT_EULA: "Y" 
-          ports: - 1433:1433
-    
+    services:
+      sqlServer:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        ports:
+        - 1433:1433
+        env:
+          SA_PASSWORD: 'yourStrong(!)Password'
+          ACCEPT_EULA: 'Y'
+          
     steps:
       - powershell: |
           Invoke-WebRequest -Uri https://download.microsoft.com/download/e/6/f/e6fae106-e9b6-4a6e-84ad-6d9d73097bc4/SQLCMDUTIL.zip -OutFile SQLCMDUTIL.zip
