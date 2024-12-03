@@ -70,12 +70,6 @@ jobs:
           MSSQL_PID: 'Express'
           
     steps:
-      - powershell: |
-          Invoke-WebRequest -Uri https://download.microsoft.com/download/e/6/f/e6fae106-e9b6-4a6e-84ad-6d9d73097bc4/SQLCMDUTIL.zip -OutFile SQLCMDUTIL.zip
-          Expand-Archive -Path SQLCMDUTIL.zip -DestinationPath $(Agent.ToolsDirectory)
-          $(Agent.ToolsDirectory)/SQLCMDUTIL/sqlcmd -S tcp:localhost,1433 -U sa -P "yourStrong(!)Password" -Q "CREATE DATABASE TestDb"
-        displayName: 'Install and Configure SQL Server Tools'
-
       - task: PowerShell@2
         inputs:
           pwsh: true
@@ -325,7 +319,7 @@ jobs:
             write-output "##vso[task.addattachment type=Distributedtask.Core.Summary;name=Environment Variables;]$fileName" 
         displayName: 'Export variable list'
         condition: succeededOrFailed()
-
+        
       - ${{ each framework in split(variables.SupportedFrameworks, ';') }}:
         - task: UseDotNet@2
           inputs:
