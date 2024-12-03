@@ -228,7 +228,7 @@ namespace qckdev.DataTest
 
         #region utils
 
-        const string CONNSTRING = @"Server=localhost,1433;Database=TestDb;User Id=sa;Password=your_password;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+        const string CONNSTRING = @"Server=localhost,1433;Database=TestDb;User Id=sa;Password=yourStrong(!)Password;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 
 #if NETCOREAPP
         static Microsoft.Data.SqlClient.SqlConnection CreateConnection()

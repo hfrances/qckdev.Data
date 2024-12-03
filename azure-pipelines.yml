@@ -11,7 +11,7 @@ trigger:
   - azure-pipelines
 
 pool:
-  vmImage: 'windows-2019'
+  vmImage: 'ubuntu-latest' #'windows-2019'
 
 parameters:
   - name: Deploy
@@ -61,12 +61,13 @@ jobs:
   - job: Build
     services:
       sqlServer:
-        image: mcr.microsoft.com/mssql/server:2019-latest
+        image: mcr.microsoft.com/mssql/server:2022-latest
         ports:
         - 1433:1433
         env:
-          SA_PASSWORD: 'yourStrong(!)Password'
+          MSSQL_SA_PASSWORD: 'yourStrong(!)Password'
           ACCEPT_EULA: 'Y'
+          MSSQL_PID: 'Express'
           
     steps:
       - powershell: |
