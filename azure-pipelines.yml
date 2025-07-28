@@ -28,8 +28,8 @@ pool:
 resources:
   repositories:
     - repository: azure-pipelines-repo
-      type: git
-      name: azure-pipelines-templates
+      type: github
+      name: hfrances/azure-pipelines-templates
       ref: refs/heads/${{
         iif(in(variables['Build.SourceBranchName'], 'master', 'staging', 'development', 'azure-pipelines', 'experimental'), 
           variables['Build.SourceBranchName'], 
@@ -38,9 +38,14 @@ resources:
             'staging'
           )
         )}}
+      endpoint: github-hfrances
 
 extends:
   template: standard/azure-pipelines-template-libnet.yml@azure-pipelines-repo
   parameters:
     Deploy: ${{ parameters.Deploy }}
     Analyze: ${{ parameters.Analyze }}
+    Test: auto
+    Solution: '*.sln'
+    ForceVersion: true
+    SupportsNuget: true
