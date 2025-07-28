@@ -31,16 +31,14 @@ resources:
       type: github
       endpoint: hfrances
       name: hfrances/azure-devops-pipelines
-      ref: refs/heads/azure-pipelines
-      #ref: ${{ variables['Build.SourceBranchName'] }}
-      #ref: ${{
-      #  iif(in(variables['Build.SourceBranchName'], 'master', 'staging', 'development', 'azure-pipelines', 'experimental'), 
-      #    variables['Build.SourceBranchName'], 
-      #    iif(eq(variables['Build.SourceBranchName'], 'main'), 
-      #      'master', 
-      #      'staging'
-      #    )
-      #  )}}
+      ref: ${{
+        iif(in(variables['Build.SourceBranchName'], 'master', 'staging', 'development', 'azure-pipelines', 'experimental'), 
+          variables['Build.SourceBranch'], 
+          iif(eq(variables['Build.SourceBranchName'], 'main'), 
+            'master', 
+            'staging'
+          )
+        )}}
 
 extends:
   template: standard/azure-pipelines-template-libnet.yml@azure-pipelines-repo
