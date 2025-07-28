@@ -20,7 +20,7 @@ parameters:
       - auto
       - true
       - false
-    default: disabled
+    default: auto
 
 pool:
   vmImage: 'ubuntu-22.04' #'ubuntu-latest' or 'windows-2019'
@@ -30,15 +30,14 @@ resources:
     - repository: azure-pipelines-repo
       type: github
       name: hfrances/azure-devops-pipelines
-      ref: refs/heads/azure-pipelines
-      #ref: ${{
-      #  iif(in(variables['Build.SourceBranchName'], 'master', 'staging', 'development', 'azure-pipelines', 'experimental'), 
-      #    variables['Build.SourceBranch'], 
-      #    iif(eq(variables['Build.SourceBranchName'], 'main'), 
-      #      'refs/heads/master', 
-      #      'refs/heads/staging'
-      #    )
-      #  )}}
+      ref: ${{
+        iif(in(variables['Build.SourceBranchName'], 'master', 'staging', 'development', 'azure-pipelines', 'experimental'), 
+          variables['Build.SourceBranch'], 
+          iif(eq(variables['Build.SourceBranchName'], 'main'), 
+            'refs/heads/master', 
+            'refs/heads/staging'
+          )
+        )}}
       endpoint: github-hfrances
 
 extends:
@@ -47,6 +46,6 @@ extends:
     Deploy: ${{ parameters.Deploy }}
     Analyze: ${{ parameters.Analyze }}
     Test: disabled
-    Solution: '*.sln'
+    Solution: '*.Build.sln'
     ForceVersion: true
     SupportsNuget: true
