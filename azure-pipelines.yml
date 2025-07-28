@@ -30,14 +30,15 @@ resources:
     - repository: azure-pipelines-repo
       type: github
       name: hfrances/azure-pipelines-templates
-      ref: refs/heads/${{
-        iif(in(variables['Build.SourceBranchName'], 'master', 'staging', 'development', 'azure-pipelines', 'experimental'), 
-          variables['Build.SourceBranchName'], 
-          iif(eq(variables['Build.SourceBranchName'], 'main'), 
-            'master', 
-            'staging'
-          )
-        )}}
+      ref: refs/heads/azure-pipelines
+      #ref: refs/heads/${{
+      #  iif(in(variables['Build.SourceBranchName'], 'master', 'staging', 'development', 'azure-pipelines', 'experimental'), 
+      #    variables['Build.SourceBranchName'], 
+      #    iif(eq(variables['Build.SourceBranchName'], 'main'), 
+      #      'master', 
+      #      'staging'
+      #    )
+      #  )}}
       endpoint: github-hfrances
 
 extends:
