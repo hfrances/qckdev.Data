@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net461;$(net40);$(net35)</TargetFrameworks>
-    <Version>1.0.0-alpha</Version>
+    <TargetFrameworks>netstandard2.0;$(net461);$(net40);$(net35)</TargetFrameworks>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Company>TrCode</Company>
     <Authors>hfrances</Authors>

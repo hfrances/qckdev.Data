@@ -6,14 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using qckdev.Data;
 using System.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace qckdev.DataTest
 {
     [TestClass]
     public class DataHelperTest
     {
-
-        const string CONNSTRING = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=master;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 
         #region command auto
 
@@ -113,6 +112,8 @@ namespace qckdev.DataTest
 
             using (var conn = CreateConnection())
             {
+                bool hasResults = false;
+
                 if (openBeforeStart)
                     conn.Open();
 
@@ -123,9 +124,10 @@ namespace qckdev.DataTest
                     {
                         while (reader.Read())
                         {
-                            reader.ToString();
+                            hasResults = true;
                         }
                     }
+                    Assert.IsTrue(hasResults, "No rows");
                 }
 
                 if (openBeforeStart)
@@ -230,12 +232,33 @@ namespace qckdev.DataTest
 
         #region utils
 
+        static readonly string _CONNSTRING;
+
+        static DataHelperTest()
+        {
+            var settings = Configuration.ConfigurationHelper.GetSettings();
+            
+            _CONNSTRING = settings.ConnectionStrings.TestConnection;
+            var options = new DbContextOptionsBuilder<TestDbContext>()
+                    .UseSqlServer(_CONNSTRING)
+                .Options;
+            using (var context = new TestDbContext(options))
+            {
+                context.Database.EnsureCreated();
+                if (!context.Entities.Any())
+                {
+                    context.Entities.Add(new Entity { Id = 0, Name = "Test", Description = null });
+                    context.SaveChanges();
+                }
+            }
+        }
+
 #if NETCOREAPP
         static Microsoft.Data.SqlClient.SqlConnection CreateConnection()
-            => new Microsoft.Data.SqlClient.SqlConnection(CONNSTRING);
+            => new Microsoft.Data.SqlClient.SqlConnection(_CONNSTRING);
 #else
         static System.Data.SqlClient.SqlConnection CreateConnection()
-            => new System.Data.SqlClient.SqlConnection(CONNSTRING);
+            => new System.Data.SqlClient.SqlConnection(_CONNSTRING);
 #endif
         #endregion
 
