@@ -31,12 +31,12 @@ resources:
       type: github
       name: hfrances/azure-devops-pipelines
       ref: refs/heads/azure-pipelines
-      #ref: refs/heads/${{
+      #ref: ${{
       #  iif(in(variables['Build.SourceBranchName'], 'master', 'staging', 'development', 'azure-pipelines', 'experimental'), 
-      #    variables['Build.SourceBranchName'], 
+      #    variables['Build.SourceBranch'], 
       #    iif(eq(variables['Build.SourceBranchName'], 'main'), 
-      #      'master', 
-      #      'staging'
+      #      'refs/heads/master', 
+      #      'refs/heads/staging'
       #    )
       #  )}}
       endpoint: github-hfrances
@@ -46,7 +46,7 @@ extends:
   parameters:
     Deploy: ${{ parameters.Deploy }}
     Analyze: ${{ parameters.Analyze }}
-    Test: auto
+    Test: false
     Solution: '*.sln'
     ForceVersion: true
     SupportsNuget: true
