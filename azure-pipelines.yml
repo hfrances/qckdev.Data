@@ -29,7 +29,6 @@ resources:
   repositories:
     - repository: azure-pipelines-repo
       type: github
-      endpoint: hfrances
       name: hfrances/azure-devops-pipelines
       ref: ${{
         iif(in(variables['Build.SourceBranchName'], 'master', 'staging', 'development', 'azure-pipelines', 'experimental'), 
@@ -39,6 +38,7 @@ resources:
             'staging'
           )
         )}}
+      endpoint: github-hfrances
 
 extends:
   template: standard/azure-pipelines-template-libnet.yml@azure-pipelines-repo
