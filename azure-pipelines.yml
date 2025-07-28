@@ -29,7 +29,7 @@ resources:
   repositories:
     - repository: azure-pipelines-repo
       type: github
-      name: hfrances/azure-pipelines-templates
+      name: hfrances/azure-devops-pipelines
       ref: refs/heads/azure-pipelines
       #ref: refs/heads/${{
       #  iif(in(variables['Build.SourceBranchName'], 'master', 'staging', 'development', 'azure-pipelines', 'experimental'), 
