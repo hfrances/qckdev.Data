@@ -15,4 +15,8 @@
     <PackageProjectUrl>https://github.com/hfrances/qckdev.Data</PackageProjectUrl>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net35'">
+    <AssemblyName>$(MSBuildProjectName).2</AssemblyName>
+  </PropertyGroup>
+
 </Project>
