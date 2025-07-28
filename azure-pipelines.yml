@@ -25,26 +25,28 @@ parameters:
 pool:
   vmImage: 'ubuntu-22.04' #'ubuntu-latest' or 'windows-2019'
 
-variables:
-  repoRef: ${{
-    iif(in(variables['Build.SourceBranchName'], 'master', 'staging', 'development', 'azure-pipelines', 'experimental'), 
-      variables['Build.SourceBranch'], 
-      iif(eq(variables['Build.SourceBranchName'], 'main'), 
-        'refs/heads/master', 
-        'refs/heads/staging'
-      )
-    )}}
+resources:
+  repositories:
+    - repository: azure-pipelines-repo
+      type: github
+      name: hfrances/azure-devops-pipelines
+      ref: ${{
+        iif(in(variables['Build.SourceBranchName'], 'master', 'staging', 'development', 'azure-pipelines', 'experimental'), 
+          variables['Build.SourceBranchName'], 
+          iif(eq(variables['Build.SourceBranchName'], 'main'), 
+            'master', 
+            'staging'
+          )
+        )}}
+      endpoint: github-hfrances
 
-jobs:
-- job: DebugVariables
-  displayName: 'Debug Variables'
-  steps:
-  - task: PowerShell@2
-    displayName: 'Print Repository Reference'
-    inputs:
-      targetType: 'inline'
-      script: |
-        Write-Host "Build.SourceBranch: $(Build.SourceBranch)"
-        Write-Host "Build.SourceBranchName: $(Build.SourceBranchName)"
-        Write-Host "repoRef: $(repoRef)"
+extends:
+  template: standard/azure-pipelines-template-libnet.yml@azure-pipelines-repo
+  parameters:
+    Deploy: ${{ parameters.Deploy }}
+    Analyze: ${{ parameters.Analyze }}
+    Test: disabled
+    Solution: '*.Build.sln'
+    ForceVersion: true
+    SupportsNuget: true
 
