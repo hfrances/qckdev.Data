@@ -23,7 +23,7 @@ parameters:
     default: disabled
 
 pool:
-  vmImage: 'ubuntu-latest' #'windows-2019'
+  vmImage: 'ubuntu-22.04' #'ubuntu-latest' or 'windows-2019'
 
 resources:
   repositories:
