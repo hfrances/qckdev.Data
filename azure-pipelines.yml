@@ -38,7 +38,7 @@ resources:
             'staging'
           )
         )}}
-      endpoint: github-hfrances
+      endpoint: github-hfrances2
 
 extends:
   template: standard/azure-pipelines-template-libnet.yml@azure-pipelines-repo
