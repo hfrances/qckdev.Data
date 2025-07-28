@@ -31,7 +31,8 @@ resources:
       type: github
       endpoint: hfrances
       name: hfrances/azure-devops-pipelines
-      ref: ${{ variables['Build.SourceBranchName'] }}
+      ref: refs/heads/azure-pipelines
+      #ref: ${{ variables['Build.SourceBranchName'] }}
       #ref: ${{
       #  iif(in(variables['Build.SourceBranchName'], 'master', 'staging', 'development', 'azure-pipelines', 'experimental'), 
       #    variables['Build.SourceBranchName'], 
