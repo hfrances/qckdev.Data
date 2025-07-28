@@ -25,19 +25,43 @@ parameters:
 pool:
   vmImage: 'ubuntu-22.04' #'ubuntu-latest' or 'windows-2019'
 
+variables:
+  repoRef: ${{ 
+    in(variables['Build.SourceBranchName'], 'master', 'staging', 'development', 'azure-pipelines', 'experimental') 
+    ? format('refs/heads/{0}', variables['Build.SourceBranchName']) 
+    : variables['Build.SourceBranchName'] == 'main' 
+      ? 'refs/heads/master' 
+      : 'refs/heads/staging' 
+  }}
+  repoRef2: ${{ 
+    in(variables['Build.SourceBranchName'], 'master', 'staging', 'development', 'azure-pipelines', 'experimental') 
+    ? variables['Build.SourceBranch']
+    : variables['Build.SourceBranchName'] == 'main' 
+      ? 'refs/heads/master' 
+      : 'refs/heads/staging' 
+  }}
+
+# Añade esta tarea antes del bloque 'extends'
+jobs:
+- job: DebugVariables
+  displayName: 'Debug Variables'
+  steps:
+  - task: PowerShell@2
+    displayName: 'Print Repository Reference'
+    inputs:
+      targetType: 'inline'
+      script: |
+        Write-Host "Build.SourceBranch: $(Build.SourceBranch)"
+        Write-Host "Build.SourceBranchName: $(Build.SourceBranchName)"
+        Write-Host "repoRef: $(repoRef)"
+        Write-Host "repoRef2: $(repoRef2)"
+
 resources:
   repositories:
     - repository: azure-pipelines-repo
       type: github
       name: hfrances/azure-devops-pipelines
-      ref: ${{
-        iif(in(variables['Build.SourceBranchName'], 'master', 'staging', 'development', 'azure-pipelines', 'experimental'), 
-          variables['Build.SourceBranch'], 
-          iif(eq(variables['Build.SourceBranchName'], 'main'), 
-            'refs/heads/master', 
-            'refs/heads/staging'
-          )
-        )}}
+      ref: $(repoRef)
       endpoint: github-hfrances
 
 extends:
