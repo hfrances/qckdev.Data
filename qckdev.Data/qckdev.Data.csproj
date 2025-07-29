@@ -18,5 +18,8 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net35'">
     <AssemblyName>$(MSBuildProjectName).2</AssemblyName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(TargetFramework)' != 'net35'">
+    <AssemblyName>$(MSBuildProjectName)</AssemblyName>
+  </PropertyGroup>
 
 </Project>
