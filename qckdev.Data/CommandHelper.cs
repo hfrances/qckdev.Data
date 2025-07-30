@@ -1,13 +1,10 @@
-﻿#if PORTABLE // EXCLUDE.
-#else
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 
 namespace qckdev.Data
 {
-    static class CommandHelper
+    static partial class CommandHelper
     {
 
         /// <remarks>
@@ -193,5 +190,3 @@ namespace qckdev.Data
 
     }
 }
-
-#endif

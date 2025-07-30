@@ -8,10 +8,14 @@ https://github.com/dotnet/sdk/issues/22469#issuecomment-1732733899
 
 Before starts, it is necessary run the following commands
 
+cd qckdev.Data
 dotnet restore
 dotnet build
 
 Before packaging, it is necessary run the following commands
 
+cd qckdev.Data
 dotnet build --configuration Release
 dotnet pack --configuration Release
+
+**It is recommendable to open this respository in VSCode**

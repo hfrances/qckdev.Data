@@ -1,7 +1,4 @@
-﻿#if PORTABLE // EXCLUDE.
-#else
-
-using System;
+﻿using System;
 using System.Data;
 
 namespace qckdev.Data
@@ -10,7 +7,7 @@ namespace qckdev.Data
     /// <summary>
     /// Defines the extension methods to the <see cref="System.Data"/> namespace.
     /// </summary>
-    public static class DataExtensions
+    public static partial class DataExtensions
     {
 
         /// <summary>
@@ -152,5 +149,3 @@ namespace qckdev.Data
 
     }
 }
-
-#endif

@@ -1,13 +1,10 @@
-﻿#if PORTABLE // EXCLUDE.
-#else
-
-using System;
+﻿using System;
 using System.Data;
+using System.Threading;
 
 namespace qckdev.Data
 {
-
-    sealed class ConnectionScope : IDisposable
+    sealed partial class ConnectionScope : IDisposable
     {
 
         #region ctor
@@ -37,6 +34,13 @@ namespace qckdev.Data
             }
         }
 
+        private ConnectionScope(IDbConnection connection, IDbTransaction transaction, ConnectionState initialState)
+        {
+            this.Connection = connection;
+            this.Transaction = transaction;
+            this.InitialState = initialState;
+        }
+
         #endregion
 
         #region properties
@@ -57,7 +61,45 @@ namespace qckdev.Data
 
         #endregion
 
+        #region static
+
+        public static ConnectionScope Create(IDbConnection connection)
+        {
+            return Create(connection, createTransaction: false);
+        }
+
+        public static ConnectionScope Create(IDbConnection connection, bool createTransaction)
+        {
+            return Create(connection, createTransaction, isolationLevel: null);
+        }
+
+        public static ConnectionScope Create(IDbConnection connection, IsolationLevel isolationLevel)
+        {
+            return Create(connection, createTransaction: true, isolationLevel: isolationLevel);
+        }
+
+        private static ConnectionScope Create(IDbConnection connection, bool createTransaction, IsolationLevel? isolationLevel)
+        {
+            ConnectionState initialState;
+            IDbTransaction transaction;
+
+            ConnectionHelper.OpenWithCheck(connection, out initialState);
+
+            if (createTransaction)
+            {
+                if (isolationLevel == null)
+                    transaction = connection.BeginTransaction();
+                else
+                    transaction = connection.BeginTransaction(isolationLevel.Value);
+            }
+            else
+            {
+                transaction = null;
+            }
+            return new ConnectionScope(connection, transaction, initialState);
+        }
+
+        #endregion
+
     }
 }
-
-#endif

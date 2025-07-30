@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;$(net461);$(net40);$(net35)</TargetFrameworks>
-    <Version>1.0.0</Version>
-    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.0</AssemblyVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Company>TrCode</Company>
     <Authors>hfrances</Authors>
@@ -21,5 +21,10 @@
   <PropertyGroup Condition="'$(TargetFramework)' != 'net35'">
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
   </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net35' or '$(TargetFramework)' == 'net40'">
+    <DefineConstants>$(DefineConstants);NO_ASYNC</DefineConstants>
+  </PropertyGroup>
 
 </Project>
+

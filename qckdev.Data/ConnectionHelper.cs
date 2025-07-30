@@ -1,12 +1,9 @@
-﻿#if PORTABLE // EXCLUDE.
-#else
-
-using System;
+﻿using System;
 using System.Data;
 
 namespace qckdev.Data
 {
-    static class ConnectionHelper
+    static partial class ConnectionHelper
     {
 
         public static void OpenWithCheck(IDbConnection connection, out ConnectionState initialState)
@@ -28,5 +25,3 @@ namespace qckdev.Data
         }
     }
 }
-
-#endif
