@@ -41,7 +41,7 @@ namespace qckdev.Data
                 if (connectionAsync == null)
                     connection.Open();
                 else
-                    await connectionAsync.OpenAsync();
+                    await connectionAsync.OpenAsync(cancellationToken);
             }
             
             /* Begin transaction */
