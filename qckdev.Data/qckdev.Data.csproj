@@ -7,22 +7,23 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Company>TrCode</Company>
     <Authors>hfrances</Authors>
-    <PackageReleaseNotes></PackageReleaseNotes>
-    <Product>qckdev.Data (Preview)</Product>
+    <Product>qckdev.Data</Product>
+    <PackageId>qckdev.Data</PackageId>
     <Description>Extensions for System.Data namespace.</Description>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageProjectUrl>https://github.com/hfrances/qckdev.Data</PackageProjectUrl>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net35'">
+  <PropertyGroup Condition="'$(TargetFramework)'=='net35'">
     <AssemblyName>$(MSBuildProjectName).2</AssemblyName>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(TargetFramework)' != 'net35'">
+  <PropertyGroup Condition="'$(TargetFramework)'!= 'net35'">
     <AssemblyName>$(MSBuildProjectName)</AssemblyName>
   </PropertyGroup>
   
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net35' or '$(TargetFramework)' == 'net40'">
+  <PropertyGroup Condition="'$(TargetFramework)'=='net35' or '$(TargetFramework)'=='net40'">
     <DefineConstants>$(DefineConstants);NO_ASYNC</DefineConstants>
   </PropertyGroup>
 
