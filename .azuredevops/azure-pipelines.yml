@@ -46,7 +46,7 @@ extends:
   parameters:
     Deploy: ${{ parameters.Deploy }}
     Analyze: ${{ parameters.Analyze }}
-    Test: disabled
+    #Test: disabled
     Solution: '*.Build.sln'
     ForceVersion: true
     SupportsNuget: true
