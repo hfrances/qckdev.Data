@@ -1,46 +1,91 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using qckdev.Data;
-using System.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using qckdev.Data;
+using qckdev.DataTest.Configuration;
+using System;
+using System.Data;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace qckdev.DataTest
 {
-    [TestClass]
-    public class DataHelperTestAsync
+    public abstract class DataHelperTestAsyncBase
     {
+        private readonly object _initLock = new object();
+        private bool _initialized;
+        private string _connectionString;
 
-        #region command auto
+        protected abstract string ProviderName { get; }
+        protected abstract bool IsEnabled(Settings settings);
+        protected abstract string ResolveConnectionString(Settings settings);
+        protected abstract IDbConnection CreateConnection(string connectionString);
+        protected abstract void EnsureDatabaseReady(string connectionString);
+
+        protected virtual string NonQueryText => "UPDATE Entities SET Name = Name";
+        protected virtual string QueryAllText => "SELECT * FROM Entities";
+        protected virtual string QueryParameterText => "SELECT @param";
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            var settings = ConfigurationHelper.GetSettings();
+            if (!IsEnabled(settings))
+            {
+                Assert.Inconclusive($"{ProviderName} tests disabled by configuration.");
+            }
+
+            EnsureInitialized(settings);
+        }
+
+        protected IDbConnection CreateConnection()
+        {
+            return CreateConnection(_connectionString);
+        }
+
+        private void EnsureInitialized(Settings settings)
+        {
+            if (_initialized)
+            {
+                return;
+            }
+
+            lock (_initLock)
+            {
+                if (_initialized)
+                {
+                    return;
+                }
+
+                _connectionString = ResolveConnectionString(settings);
+                if (string.IsNullOrWhiteSpace(_connectionString))
+                {
+                    Assert.Inconclusive($"{ProviderName} connection string is missing.");
+                }
+
+                EnsureDatabaseReady(_connectionString);
+                _initialized = true;
+            }
+        }
 
         [TestMethod]
         [DataRow(false)]
         [DataRow(true)]
         public async Task ExecuteNonQueryAutoAsyncTest(bool openBeforeStart)
         {
-
             using (var conn = CreateConnection())
             {
-                if (openBeforeStart)
-                    await conn.OpenAsync();
+                if (openBeforeStart && conn is System.Data.Common.DbConnection dbConn)
+                    await dbConn.OpenAsync();
 
                 using (var comm = conn.CreateCommand())
                 {
-                    int rdo;
-
-                    comm.CommandText = "sp_who2";
-                    comm.CommandType = System.Data.CommandType.StoredProcedure;
-                    rdo = await comm.ExecuteNonQueryAutoAsync();
-                    Assert.AreNotEqual(0, rdo);
+                    comm.CommandText = NonQueryText;
+                    comm.CommandType = CommandType.Text;
+                    var rdo = await comm.ExecuteNonQueryAutoAsync();
+                    Assert.IsTrue(rdo > 0, "No rows were affected.");
                 }
 
-                if (openBeforeStart)
-                    Assert.AreEqual(System.Data.ConnectionState.Open, conn.State);
-                else
-                    Assert.AreEqual(System.Data.ConnectionState.Closed, conn.State);
+                Assert.AreEqual(openBeforeStart ? ConnectionState.Open : ConnectionState.Closed, conn.State);
             }
         }
 
@@ -51,26 +96,20 @@ namespace qckdev.DataTest
         [DataRow(true, AssertExt.DBNullCONST, null)]
         public async Task ExecuteScalarAutoAsyncTest(bool openBeforeStart, object expected, string value)
         {
-
             using (var conn = CreateConnection())
             {
-                if (openBeforeStart)
-                    await conn.OpenAsync();
+                if (openBeforeStart && conn is System.Data.Common.DbConnection dbConn)
+                    await dbConn.OpenAsync();
 
                 using (var comm = conn.CreateCommand())
                 {
-                    object rdo;
-
-                    comm.CommandText = $"SELECT @param";
-                    comm.Parameters.AddWithValue("@param", (object)value ?? DBNull.Value);
-                    rdo = await comm.ExecuteScalarAutoAsync();
+                    comm.CommandText = QueryParameterText;
+                    comm.Parameters.Add(comm.CreateParameterWithValue("@param", value));
+                    var rdo = await comm.ExecuteScalarAutoAsync();
                     AssertExt.AreEqualDBNull(expected, rdo);
                 }
 
-                if (openBeforeStart)
-                    Assert.AreEqual(System.Data.ConnectionState.Open, conn.State);
-                else
-                    Assert.AreEqual(System.Data.ConnectionState.Closed, conn.State);
+                Assert.AreEqual(openBeforeStart ? ConnectionState.Open : ConnectionState.Closed, conn.State);
             }
         }
 
@@ -81,26 +120,20 @@ namespace qckdev.DataTest
         [DataRow(true, null, null)]
         public async Task ExecuteScalarAutoAsyncTTest(bool openBeforeStart, object expected, string value)
         {
-
             using (var conn = CreateConnection())
             {
-                if (openBeforeStart)
-                    await conn.OpenAsync();
+                if (openBeforeStart && conn is System.Data.Common.DbConnection dbConn)
+                    await dbConn.OpenAsync();
 
                 using (var comm = conn.CreateCommand())
                 {
-                    string rdo;
-
-                    comm.CommandText = $"SELECT @param";
-                    comm.Parameters.AddWithValue("@param", (object)value ?? DBNull.Value);
-                    rdo = await comm.ExecuteScalarAutoAsync<string>();
+                    comm.CommandText = QueryParameterText;
+                    comm.Parameters.Add(comm.CreateParameterWithValue("@param", value));
+                    var rdo = await comm.ExecuteScalarAutoAsync<string>();
                     AssertExt.AreEqualDBNull(expected, rdo);
                 }
 
-                if (openBeforeStart)
-                    Assert.AreEqual(System.Data.ConnectionState.Open, conn.State);
-                else
-                    Assert.AreEqual(System.Data.ConnectionState.Closed, conn.State);
+                Assert.AreEqual(openBeforeStart ? ConnectionState.Open : ConnectionState.Closed, conn.State);
             }
         }
 
@@ -109,17 +142,16 @@ namespace qckdev.DataTest
         [DataRow(true)]
         public async Task ExecuteReaderAutoAsyncTest(bool openBeforeStart)
         {
-
             using (var conn = CreateConnection())
             {
                 bool hasResults = false;
 
-                if (openBeforeStart)
-                    await conn.OpenAsync();
+                if (openBeforeStart && conn is System.Data.Common.DbConnection dbConn)
+                    await dbConn.OpenAsync();
 
                 using (var comm = conn.CreateCommand())
                 {
-                    comm.CommandText = $"SELECT * FROM syslanguages";
+                    comm.CommandText = QueryAllText;
                     using (var reader = await comm.ExecuteReaderAutoAsync())
                     {
                         while (await reader.ReadAsync())
@@ -127,13 +159,10 @@ namespace qckdev.DataTest
                             hasResults = true;
                         }
                     }
-                    Assert.IsTrue(hasResults, "No rows");
                 }
 
-                if (openBeforeStart)
-                    Assert.AreEqual(System.Data.ConnectionState.Open, conn.State);
-                else
-                    Assert.AreEqual(System.Data.ConnectionState.Closed, conn.State);
+                Assert.IsTrue(hasResults, "No rows");
+                Assert.AreEqual(openBeforeStart ? ConnectionState.Open : ConnectionState.Closed, conn.State);
             }
         }
 
@@ -142,15 +171,14 @@ namespace qckdev.DataTest
         [DataRow(true)]
         public async Task ExecuteDataTableAutoAsyncTest(bool openBeforeStart)
         {
-
             using (var conn = CreateConnection())
             {
-                if (openBeforeStart)
-                    await conn.OpenAsync();
+                if (openBeforeStart && conn is System.Data.Common.DbConnection dbConn)
+                    await dbConn.OpenAsync();
 
                 using (var comm = conn.CreateCommand())
                 {
-                    comm.CommandText = $"SELECT * FROM syslanguages";
+                    comm.CommandText = QueryAllText;
                     using (var dataTable = await comm.ExecuteDataTableAutoAsync())
                     {
                         Assert.IsTrue(dataTable.Columns.OfType<DataColumn>().Any(), "No columns were loaded.");
@@ -158,17 +186,9 @@ namespace qckdev.DataTest
                     }
                 }
 
-                if (openBeforeStart)
-                    Assert.AreEqual(System.Data.ConnectionState.Open, conn.State);
-                else
-                    Assert.AreEqual(System.Data.ConnectionState.Closed, conn.State);
+                Assert.AreEqual(openBeforeStart ? ConnectionState.Open : ConnectionState.Closed, conn.State);
             }
         }
-
-        #endregion
-
-
-        #region create parameter
 
         [TestMethod]
         [DataRow(true, "hello world", "hello world")]
@@ -204,44 +224,51 @@ namespace qckdev.DataTest
 
         private void CreateParameterWithValueTest<T>(bool castResult, T parameterValue, object expectedResult)
         {
-
             using (var conn = CreateConnection())
+            using (var comm = conn.CreateCommand())
             {
-                using (var comm = conn.CreateCommand())
+                object rdo = null;
+                comm.CommandText = QueryParameterText;
+                comm.Parameters.Add(comm.CreateParameterWithValue("@param", parameterValue));
+
+                for (int i = 0; i < 1000; i++)
                 {
-                    object rdo = null;
-
-                    comm.CommandText = "SELECT @param";
-                    comm.Parameters.Add(comm.CreateParameterWithValue("@param", parameterValue));
-
-                    for (int i = 0; i < 1000; i++) // Repetir varias veces para comprobar eficiencia.
-                    {
-                        if (castResult)
-                            rdo = comm.ExecuteScalarAuto<T>();
-                        else
-                            rdo = comm.ExecuteScalarAuto();
-                    }
-                    AssertExt.AreEqualDBNull(expectedResult, rdo);
+                    if (castResult)
+                        rdo = comm.ExecuteScalarAuto<T>();
+                    else
+                        rdo = comm.ExecuteScalarAuto();
                 }
+                AssertAreEquivalent(expectedResult, rdo);
             }
         }
 
-
-        #endregion
-
-
-        #region utils
-
-        static readonly string _CONNSTRING;
-
-        static DataHelperTestAsync()
+        private static void AssertAreEquivalent(object expected, object actual)
         {
-            var settings = Configuration.ConfigurationHelper.GetSettings();
-            
-            _CONNSTRING = settings.ConnectionStrings.TestConnection;
+            if (expected is int expectedInt && actual is long actualLong)
+            {
+                Assert.AreEqual(Convert.ToInt64(expectedInt), actualLong);
+                return;
+            }
+
+            AssertExt.AreEqualDBNull(expected, actual);
+        }
+    }
+
+    [TestClass]
+    public sealed class DataHelperSqlServerTestAsync : DataHelperTestAsyncBase
+    {
+        protected override string ProviderName => "SqlServer";
+        protected override bool IsEnabled(Settings settings) => settings?.Tests?.RunSqlServer == true;
+
+        protected override string ResolveConnectionString(Settings settings)
+            => settings?.ConnectionStrings?.SqlServer ?? settings?.ConnectionStrings?.TestConnection;
+
+        protected override void EnsureDatabaseReady(string connectionString)
+        {
             var options = new DbContextOptionsBuilder<TestDbContext>()
-                    .UseSqlServer(_CONNSTRING)
+                .UseSqlServer(connectionString)
                 .Options;
+
             using (var context = new TestDbContext(options))
             {
                 context.Database.EnsureCreated();
@@ -253,14 +280,43 @@ namespace qckdev.DataTest
             }
         }
 
+        protected override IDbConnection CreateConnection(string connectionString)
+        {
 #if NETCOREAPP
-        static Microsoft.Data.SqlClient.SqlConnection CreateConnection()
-            => new Microsoft.Data.SqlClient.SqlConnection(_CONNSTRING);
+            return new Microsoft.Data.SqlClient.SqlConnection(connectionString);
 #else
-        static System.Data.SqlClient.SqlConnection CreateConnection()
-            => new System.Data.SqlClient.SqlConnection(_CONNSTRING);
+            return new System.Data.SqlClient.SqlConnection(connectionString);
 #endif
-        #endregion
-
+        }
     }
+
+#if NETCOREAPP
+    [TestClass]
+    public sealed class DataHelperSqliteTestAsync : DataHelperTestAsyncBase
+    {
+        protected override string ProviderName => "Sqlite";
+        protected override bool IsEnabled(Settings settings) => settings?.Tests?.RunSqlite == true;
+        protected override string ResolveConnectionString(Settings settings) => settings?.ConnectionStrings?.Sqlite;
+
+        protected override void EnsureDatabaseReady(string connectionString)
+        {
+            var options = new DbContextOptionsBuilder<TestDbContext>()
+                .UseSqlite(connectionString)
+                .Options;
+
+            using (var context = new TestDbContext(options))
+            {
+                context.Database.EnsureCreated();
+                if (!context.Entities.Any())
+                {
+                    context.Entities.Add(new Entity { Id = 0, Name = "Test", Description = null });
+                    context.SaveChanges();
+                }
+            }
+        }
+
+        protected override IDbConnection CreateConnection(string connectionString)
+            => new Microsoft.Data.Sqlite.SqliteConnection(connectionString);
+    }
+#endif
 }

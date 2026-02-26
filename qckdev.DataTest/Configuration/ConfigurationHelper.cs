@@ -11,14 +11,19 @@ namespace qckdev.DataTest.Configuration
     {
 
 
-        public static Settings GetSettings(string environment = "Development")
+        public static Settings GetSettings(string environment = null)
         {
+            var currentEnvironment = string.IsNullOrWhiteSpace(environment)
+                ? (Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")
+                    ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                    ?? "Production")
+                : environment;
 
 #if NET461_OR_GREATER || NETCOREAPP
 
             var builder = new ConfigurationBuilder()
                     .AddJsonFile($"appsettings.json", true, true)
-                    .AddJsonFile($"appsettings.{environment}.json", true, true)
+                    .AddJsonFile($"appsettings.{currentEnvironment}.json", true, true)
                     .AddEnvironmentVariables();
 
             var config = builder.Build();
@@ -27,7 +32,7 @@ namespace qckdev.DataTest.Configuration
 #else
 
             var fileName = "appsettings.json";
-            var fileNameByEnv = $"appsettings.{environment}.json";
+            var fileNameByEnv = $"appsettings.{currentEnvironment}.json";
             var settings = new Settings();
 
             if (System.IO.File.Exists(fileName))
@@ -37,7 +42,7 @@ namespace qckdev.DataTest.Configuration
                     Newtonsoft.Json.JsonConvert.PopulateObject(reader.ReadToEnd(), settings);
                 }
             }
-            if (!string.IsNullOrEmpty(environment?.Trim()) && System.IO.File.Exists(fileNameByEnv))
+            if (!string.IsNullOrEmpty(currentEnvironment?.Trim()) && System.IO.File.Exists(fileNameByEnv))
             {
                 using (var reader = new System.IO.StreamReader(fileNameByEnv))
                 {
