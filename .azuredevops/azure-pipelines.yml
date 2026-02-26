@@ -49,4 +49,4 @@ extends:
     Test: disabled
     Solution: '*.Build.sln'
     ForceVersion: true
-    SupportsNuget: false
+    SupportsNuget: true
