@@ -36,7 +36,7 @@ resources:
           variables['Build.SourceBranch'], 
           iif(eq(variables['Build.SourceBranchName'], 'main'), 
             'master', 
-            'staging'
+            'azure-pipelines'
           )
         )}}
       endpoint: github-hfrances
