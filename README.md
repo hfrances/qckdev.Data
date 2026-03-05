@@ -1,7 +1,7 @@
-<a href="https://www.nuget.org/packages/qckdev.Data"><img src="https://img.shields.io/nuget/v/qckdev.Data.svg" alt="NuGet Version"/></a>
-<a href="https://sonarcloud.io/dashboard?id=qckdev.Data"><img src="https://sonarcloud.io/api/project_badges/measure?project=qckdev.Data&metric=alert_status" alt="Quality Gate"/></a>
-<a href="https://sonarcloud.io/dashboard?id=qckdev.Data"><img src="https://sonarcloud.io/api/project_badges/measure?project=qckdev.Data&metric=coverage" alt="Code Coverage"/></a>
-<a><img src="https://hfrances.visualstudio.com/qckdev/_apis/build/status/qckdev.Data?branchName=master" alt="Azure Pipelines Status"/></a>
+[![NuGet Version](https://img.shields.io/nuget/v/qckdev.Data.svg)](https://www.nuget.org/packages/qckdev.Data)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=qckdev.Data&metric=alert_status)](https://sonarcloud.io/dashboard?id=qckdev.Data)
+[![Code Coverage](https://sonarcloud.io/api/project_badges/measure?project=qckdev.Data&metric=coverage)](https://sonarcloud.io/dashboard?id=qckdev.Data)
+![Azure Pipelines Status](https://hfrances.visualstudio.com/qckdev/_apis/build/status/qckdev.Data?branchName=master)
 
 
 # qckdev.Data
@@ -100,3 +100,9 @@ void CreateParameterWithValueTest<T>(T parameterValue)
     }
 }
 ```
+
+## 🤝 Contributing
+Issues and pull requests are welcome! See the contribution guidelines (coming soon).
+
+## 📜 License
+This project is licensed under the terms of the [MIT License](LICENSE).
