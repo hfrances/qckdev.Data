@@ -8,6 +8,14 @@
 
 Provides extensions to **System.Data** namespace.
 
+## 🛠️ Installation
+
+```bash
+dotnet add package qckdev.Data
+```
+
+## ⚡ Quick Start
+
 ## IDbCommand "Auto" methods
 Opens the connection if it is closed before execute the operation. If the connection was closed at the beniging, it closes the connection again.
 
